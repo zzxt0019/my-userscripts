@@ -9,12 +9,13 @@
 
 (function () {
     'use strict';
+    const UserscriptId = 'zzxt0019-github-fork';
 
     setInterval(() => {
-        let list = document.querySelectorAll('#network .repo a:not([data-hovercard-type="user"]):not([zzxt0019-github-fork])');
+        let list = document.querySelectorAll(`#network .repo a:not([data-hovercard-type="user"]):not([${UserscriptId}])`);
         for (let i = 0; i < list.length; i++) {
             let a = list[i];
-            a.setAttribute('zzxt0019-github-fork', '');
+            a.setAttribute(UserscriptId, '');
             fetch(a.href).then(res => {
                 res.text().then(text => {
                     let div = document.createElement('div');

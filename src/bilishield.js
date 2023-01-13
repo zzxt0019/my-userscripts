@@ -6,6 +6,7 @@
 // @icon64          https://zzxt0019.github.io/bilishield/img/Elysia.png
 // @require         https://zzxt0019.github.io/bilishield/userscript.min.js
 // @supportURL      https://github.com/zzxt0019/bilishield
+// @homepage        https://github.com/zzxt0019/bilishield
 // @description     bilibili屏蔽
 
 // @match           *://*.bilibili.com/*
