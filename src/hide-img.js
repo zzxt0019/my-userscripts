@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         隐藏图片
-// @version      0.3
+// @version      0.4
 // @description  隐藏图片, 旁边添加按钮可展示/隐藏
 // @author       zzxt0019
 // @match        https://nga.178.com/*
@@ -12,7 +12,7 @@
 (function () {
     'use strict';
     const UserscriptId = 'zzxt0019-hide-img';
-    const DisplayAttribute = UserscriptId + '-display';
+    const DisplayKey = UserscriptId + '-display';
 
     let styles = {
         buttonSvgToSee: '<svg viewBox="64 64 896 896" focusable="false" data-icon="eye" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M81.8 537.8a60.3 60.3 0 010-51.5C176.6 286.5 319.8 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 000 51.5C176.6 737.5 319.9 838 512 838c-192.1 0-335.4-100.5-430.2-300.2z" fill="#e6f7ff"></path><path d="M512 258c-161.3 0-279.4 81.8-362.7 254C232.6 684.2 350.7 766 512 766c161.4 0 279.5-81.8 362.7-254C791.4 339.8 673.3 258 512 258zm-4 430c-97.2 0-176-78.8-176-176s78.8-176 176-176 176 78.8 176 176-78.8 176-176 176z" fill="#e6f7ff"></path><path d="M942.2 486.2C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 000 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3 7.7-16.2 7.7-35 0-51.5zM512 766c-161.3 0-279.4-81.8-362.7-254C232.6 339.8 350.7 258 512 258s279.4 81.8 362.7 254C791.5 684.2 673.4 766 512 766z" fill="#1890ff"></path><path d="M508 336c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176-78.8-176-176-176zm0 288c-61.9 0-112-50.1-112-112s50.1-112 112-112 112 50.1 112 112-50.1 112-112 112z" fill="#1890ff"></path></svg>',
@@ -29,12 +29,17 @@
         check();
     });
     observer.observe(document, {childList: true, subtree: true, attributes: true});
+    let style = document.createElement('style');
+    style.innerHTML = `
+    .${DisplayKey} {
+      display: none !important;
+    }`;
+    document.body.append(style);
 
     /**
      * 初始化img前的button以及匹配的zzxt
      */
     function hide(list) {
-        console.log('list', list);
         if (!list) {
             list = document.querySelectorAll(`img[src]:not([${UserscriptId}]):not([src="about:blank"])`);
         }
@@ -45,13 +50,19 @@
                 img.setAttribute(UserscriptId, String(count0));
                 let button = document.createElement('button');
                 button.setAttribute(UserscriptId, String(count0));
-                button.setAttribute(DisplayAttribute, 'none');
+                button.setAttribute(DisplayKey, 'none');
                 Object.keys(styles.buttonStyle).forEach(key => button.style[key] = styles.buttonStyle[key]);
                 button.innerHTML = styles.buttonSvgToSee;
                 button.onclick = () => {
-                    button.setAttribute(DisplayAttribute, button.getAttribute(DisplayAttribute) === 'none' ? '' : 'none');
-                    button.innerHTML = button.getAttribute(DisplayAttribute) === 'none' ? styles.buttonSvgToSee : styles.buttonSvgToHide;
-                    document.querySelector(`img[${UserscriptId}="${count0}"]`).style.display = button.getAttribute(DisplayAttribute);
+                    if (button.getAttribute(DisplayKey) === 'none') {
+                        button.setAttribute(DisplayKey, '');
+                        button.innerHTML = styles.buttonSvgToHide;
+                        document.querySelector(`img[${UserscriptId}="${count0}"]`).classList.remove(DisplayKey);
+                    } else {
+                        button.setAttribute(DisplayKey, 'none');
+                        button.innerHTML = styles.buttonSvgToSee;
+                        document.querySelector(`img[${UserscriptId}="${count0}"]`).classList.add(DisplayKey);
+                    }
                 };
                 img.parentElement.insertBefore(button, img);
             }
@@ -62,12 +73,19 @@
      * 检查 隐藏应该隐藏但没有隐藏的img
      */
     function check() {
-        let list = document.querySelectorAll(`button[${UserscriptId}][${DisplayAttribute}=none]`);
+        let list = document.querySelectorAll(`button[${UserscriptId}][${DisplayKey}=none]`);
         for (let i = 0; i < list.length; i++) {
             let button = list[i];
             let img = document.querySelector(`img[${UserscriptId}="${button.getAttribute(UserscriptId)}"]`);
-            if (img && img.style.display !== button.getAttribute(DisplayAttribute)) {
-                img.style.display = button.getAttribute(DisplayAttribute);
+            if (img) {
+                if ((!img.classList.contains(DisplayKey) && button.getAttribute(DisplayKey) === 'none')
+                    || (img.classList.contains(DisplayKey) && button.getAttribute(DisplayKey) !== 'none')) {
+                    if (button.getAttribute(DisplayKey) === 'none') {
+                        img.classList.add(DisplayKey);
+                    } else {
+                        img.classList.remove(DisplayKey);
+                    }
+                }
             }
         }
     }
