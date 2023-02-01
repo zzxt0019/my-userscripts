@@ -5,7 +5,6 @@
 // @author       zzxt0019
 // @match        https://nga.178.com/*
 // @match        https://www.zhihu.com/*
-// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
