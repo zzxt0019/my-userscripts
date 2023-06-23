@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         隐藏图片
+// @name         zzxt0019-隐藏图片
 // @version      0.5
 // @description  隐藏图片, 旁边添加按钮可展示/隐藏
 // @author       zzxt0019

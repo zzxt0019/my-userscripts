@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         github-fork页面查看二开项目
+// @name         zzxt0019-github-fork页面查看二开项目
 // @version      0.1
 // @description  github-fork页面查看二开项目
 // @author       zzxt0019

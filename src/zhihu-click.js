@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         知乎关闭 自动前往活动
+// @name         zzxt0019-知乎自动关闭首页框
 // @version      0.2
 // @description  自动关闭知乎首页的"自动前往活动"的框
 // @author       zzxt0019
