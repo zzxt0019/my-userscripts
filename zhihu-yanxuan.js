@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         知乎首页关闭盐选
+// @name         zzxt0019-知乎首页关闭盐选
 // @version      0.3
 // @description  知乎首页关闭盐选 点开如果有盐选标识就不显示
 // @author       zzxt0019

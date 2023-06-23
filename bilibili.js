@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         bilibili a标签没有href了?
+// @name         zzxt0019-bilibili a标签
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  不能右键+T在新标签页打开链接?
