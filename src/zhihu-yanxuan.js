@@ -37,7 +37,7 @@
             article.classList.add(DisplayKey);
             let buttonMore = article.querySelector('button.ContentItem-more');
             buttonMore.dispatchEvent(click);
-            let interval = setInterval(() => {
+            let interval = setTimeout(() => {
                 let buttonBack = article.querySelector('button .RichContent-collapsedText');
                 if (buttonBack != null) {
                     clearInterval(interval);
