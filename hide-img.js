@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         zzxt0019-隐藏图片
-// @version      0.5
+// @version      0.6
 // @description  隐藏图片, 旁边添加按钮可展示/隐藏
 // @author       zzxt0019
 // @match        https://nga.178.com/*
@@ -14,11 +14,11 @@
     // 需要被隐藏操作的图片的AttributeKey
     const ImgId = baseId + '-img-id';
     // 对应隐藏按钮的AttributeKey
-    const ButtonId = baseId + '-button-id';
+    const ButtonId = baseId + '-btn-id';
     // 隐藏时 图片的class
-    const ImgHideClass = baseId + '-img-class';
+    const ImgHideKey = baseId + '-img-key';
     // button的AttributeKey 表示img的状态
-    const ButtonImgStatus = baseId + '-button-img-status';
+    const HideState = baseId + '-state';
 
     const styles = {
         // 点击从隐藏变为可视的图标(眼睛)
@@ -34,10 +34,8 @@
     const dataOriginal = new Set();
     // 开始
     createStyle();
-    hide();
-    let observer = new MutationObserver(() => {
+    let observer = new MutationObserver((arr) => {
         hide();
-        check();
     });
     observer.observe(document, {childList: true, subtree: true, attributes: true});
 
@@ -49,14 +47,11 @@
     function createStyle() {
         let style = document.createElement('style');
         style.innerHTML = `
-          [${ImgId}].${ImgHideClass} {
+          [${ImgId}][${ImgHideKey}] {
             display: none !important;
           }
-          [${ImgId}]:not(.${ImgHideClass}) {
+          [${ImgId}]:not([${ImgHideKey}]) {
             opacity: 0.3 !important;
-          }
-          html {
-            opacity: 0.8;
           }
           `;
         document.body.append(style);
@@ -66,14 +61,12 @@
     /**
      * 初始化img前的button以及匹配的zzxt
      */
-    function hide(list) {
-        if (!list) {
-            list = [];
-            // <img src=""> 但src不为[about:blank]
-            list.push(...document.querySelectorAll(`img[src]:not([src="about:blank"]):not([${ImgId}])`));
-            // style里有[: url("]
-            list.push(...document.querySelectorAll(`[style*=': url(\"']:not([${ImgId}])`));
-        }
+    function hide(_document = document) {
+        let list = [];
+        // <img src=""> 但src不为[about:blank]
+        list.push(..._document.querySelectorAll(`img[src]:not([src="about:blank"]):not([${ImgId}])`));
+        // style里有[: url("]
+        list.push(..._document.querySelectorAll(`[style*=': url(\"']:not([${ImgId}])`));
         for (let i = 0; i < list.length; i++) {
             // 当前的计数
             let count0 = count++;
@@ -81,63 +74,43 @@
             if (ZhiHu(img)) {
                 img.setAttribute(ImgId, String(count0));
                 // 创建button
-                let button = document.createElement('button');
-                button.setAttribute(ButtonId , String(count0));
-                button.setAttribute(ButtonImgStatus, 'none');
+                let button = _document.createElement('button');
+                button.setAttribute(ButtonId, String(count0));
+                button.setAttribute(HideState, 'none');
                 // button样式
                 Object.keys(styles.buttonStyle).forEach(key => button.style[key] = styles.buttonStyle[key]);
                 button.innerHTML = styles.buttonSvgToSee;
                 button.onclick = () => {
+                    let element = document.querySelector(`[${ImgId}="${count0}"]`);
                     // 点击button时 修改img的隐藏状态和button的ImgStatus
-                    if (button.getAttribute(ButtonImgStatus) === 'none') {
-                        button.setAttribute(ButtonImgStatus, '');
+                    if (button.getAttribute(HideState) === 'none') {
+                        button.setAttribute(HideState, '');
                         button.innerHTML = styles.buttonSvgToHide;
-                        document.querySelector(`[${ImgId}="${count0}"]`).classList.remove(ImgHideClass);
+                        element.removeAttribute(ImgHideKey);
                     } else {
-                        button.setAttribute(ButtonImgStatus, 'none');
+                        button.setAttribute(HideState, 'none');
                         button.innerHTML = styles.buttonSvgToSee;
-                        document.querySelector(`[${ImgId}="${count0}"]`).classList.add(ImgHideClass);
+                        element.setAttribute(ImgHideKey, '');
                     }
                 };
+                button.setAttribute(HideState, 'none');
+                img.setAttribute(ImgHideKey, '');
                 img.parentElement.insertBefore(button, img);
             }
         }
     }
 
     /**
-     * 检查 隐藏应该隐藏但没有隐藏的img
-     */
-    function check() {
-        let list = document.querySelectorAll(`button[${ButtonId }][${ButtonImgStatus}=none]`);
-        for (let i = 0; i < list.length; i++) {
-            let button = list[i];
-            let img = document.querySelector(`[${ImgId}="${button.getAttribute(ButtonId)}"]`);
-            if (img) {
-                // img没有隐藏class并且button的ImgStatus为隐藏 或者 img有隐藏class并且button的ImgStatus为不隐藏
-                //   => img的隐藏状态和button的ImgStatus不同时
-                // 改为button的状态
-                if ((!img.classList.contains(ImgHideClass) && button.getAttribute(ButtonImgStatus) === 'none')
-                    || (img.classList.contains(ImgHideClass) && button.getAttribute(ButtonImgStatus) !== 'none')) {
-                    if (button.getAttribute(ButtonImgStatus) === 'none') {
-                        img.classList.add(ImgHideClass);
-                    } else {
-                        img.classList.remove(ImgHideClass);
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
      * 知乎大图判断, 不隐藏大图
      */
     function ZhiHu(img) {
-        if (dataOriginal.has(img.src) && !img.hasAttribute('data-original')) {
+        // 评论区大图
+        if (img.classList.contains('ImageView-img') && img.alt === 'preview') {
             return false;
         }
-        if (img.hasAttribute('data-original')) {
-            dataOriginal.add(img.getAttribute('data-original'));
+        // 答案大图
+        if (img.parentElement === document.body) {
+            return false;
         }
         return true;
     }
