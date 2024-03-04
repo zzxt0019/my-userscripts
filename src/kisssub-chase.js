@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         爱恋动漫-记录追番按钮
-// @version      0.1
+// @name         zzxt0019-爱恋动漫记录追番按钮
+// @version      0.2
 // @description  新番页面番剧后添加选项框, 记录自己追的番
 // @author       zzxt0019
 // @match        https://www.kisssub.org
