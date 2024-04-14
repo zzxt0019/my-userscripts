@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         zzxt0019-爱恋动漫记录追番记录按钮
-// @version      0.3
+// @version      0.4
 // @description  新番页面番剧后添加选项框, 记录自己追的番
 // @author       zzxt0019
 // @match        https://www.kisssub.org
@@ -49,12 +49,12 @@
 
         input.type = 'number';
         // 获取番剧名
-        let key = element.innerHTML.trim();
+        let key = 'anime.' + element.innerHTML.trim();
         input.classList.add(id);
         // input, 改变值时存储setValue
         input.value = GM_getValue(key, null);
         input.onchange = () => {
-            GM_setValue('anime.' + key, input.value);
+            GM_setValue(key, input.value);
         }
         // 将input添加到番剧后面
         if (element.nextSibling) {
