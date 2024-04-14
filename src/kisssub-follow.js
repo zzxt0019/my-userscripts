@@ -1,25 +1,47 @@
 // ==UserScript==
-// @name         zzxt0019-爱恋动漫记录追番按钮
+// @name         zzxt0019-爱恋动漫记录追番记录按钮
 // @version      0.3
 // @description  新番页面番剧后添加选项框, 记录自己追的番
 // @author       zzxt0019
 // @match        https://www.kisssub.org
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // ==/UserScript==
 (function () {
     'use strict';
     // Your code here...
     const id = 'zzxt0019-kisssub-follow';
+    const styleId = id + '-style';
+
+    GM_registerMenuCommand('设置宽度', () => {
+        let width = prompt("设置宽度(px)", GM_getValue('style.width', 30));
+        if (width) {
+            GM_setValue('style.width', width);
+        }
+        updateStyle();
+    })
+    GM_registerMenuCommand('设置高度', () => {
+        let height = prompt("设置高度(px)", GM_getValue('style.height', 15));
+        if (height) {
+            GM_setValue('style.height', height);
+        }
+        updateStyle();
+    })
     // 样式
     let style = document.createElement('style');
-    style.innerHTML = `
+    style.id = styleId;
+    document.body.append(style);
+    updateStyle();
+
+    function updateStyle() {
+        document.getElementById(styleId).innerHTML = `
           input.${id} {
-              height: 15px;
-              width: 30px;
+              height: ${GM_getValue('style.height', 15)}px;
+              width: ${GM_getValue('style.width', 30)}px;
           }
           `;
-    document.body.append(style);
+    }
 
     // a[data-balloon-pos="up"] 查询含有番剧名字的标签
     document.querySelectorAll('a[data-balloon-pos="up"]').forEach(element => {
@@ -32,7 +54,7 @@
         // input, 改变值时存储setValue
         input.value = GM_getValue(key, null);
         input.onchange = () => {
-            GM_setValue(key, input.value);
+            GM_setValue('anime.' + key, input.value);
         }
         // 将input添加到番剧后面
         if (element.nextSibling) {
