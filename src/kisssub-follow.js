@@ -1,18 +1,20 @@
 // ==UserScript==
 // @name         zzxt0019-爱恋动漫记录追番记录按钮
-// @version      0.4
+// @version      0.5
 // @description  新番页面番剧后添加选项框, 记录自己追的番
 // @author       zzxt0019
-// @match        https://www.kisssub.org
+// @match        https://www.kisssub.org/*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 (function () {
     'use strict';
     // Your code here...
     const id = 'zzxt0019-kisssub-follow';
     const styleId = id + '-style';
+    let menuId;
 
     GM_registerMenuCommand('设置宽度', () => {
         let width = prompt("设置宽度(px)", GM_getValue('style.width', 30));
@@ -28,6 +30,35 @@
         }
         updateStyle();
     })
+    createHideMenu();
+
+    function createHideMenu() {
+        menuId = GM_registerMenuCommand('隐藏', () => {
+            document.getElementById(styleId).innerHTML = `
+          input.${id} {
+              height: ${GM_getValue('style.height', 15)}px;
+              width: ${GM_getValue('style.width', 30)}px;
+              display: none;
+          }
+        `
+            GM_unregisterMenuCommand(menuId);
+            createShowMenu();
+        });
+    }
+
+    function createShowMenu() {
+        menuId = GM_registerMenuCommand('显示', () => {
+            document.getElementById(styleId).innerHTML = `
+          input.${id} {
+              height: ${GM_getValue('style.height', 15)}px;
+              width: ${GM_getValue('style.width', 30)}px;
+          }
+        `
+            GM_unregisterMenuCommand(menuId);
+            createHideMenu();
+        })
+    }
+
     // 样式
     let style = document.createElement('style');
     style.id = styleId;
