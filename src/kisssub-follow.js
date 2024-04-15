@@ -115,11 +115,11 @@
             // input, 改变值时存储setValue
             input.value = GM_getValue(key, null);
             // 没有标记的变透明
-            input.style.opacity = input.value ? 1 : 0.5;
+            input.style.opacity = input.value ? 1 : 0.3;
             input.onchange = () => {
                 GM_setValue(key, input.value);
                 // 没有标记的变透明
-                input.style.opacity = input.value ? 1 : 0.5;
+                input.style.opacity = input.value ? 1 : 0.3;
             }
             // 将input添加到番剧后面
             if (element.nextSibling) {
