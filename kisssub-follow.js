@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         zzxt0019-爱恋动漫记录追番记录按钮
-// @version      0.5
+// @version      0.6
 // @description  新番页面番剧后添加选项框, 记录自己追的番
 // @author       zzxt0019
 // @match        https://www.kisssub.org/*
@@ -34,6 +34,12 @@
               display: none;
           }
     `
+
+    class KissSubAnime {
+        number = null;
+        time = null;
+    }
+
 
     createUpdateSizeMenu();  // 设置计数框的宽度和高度
     createHideMenu();  // 创建隐藏/显示菜单
@@ -113,11 +119,16 @@
             // 获取番剧名, key = anime.番名
             let key = 'anime.' + element.innerHTML.trim();
             // input, 改变值时存储setValue
-            input.value = GM_getValue(key, null);
+            let anime = GM_getValue(key, new KissSubAnime());
+            input.value = anime.number;
+            input.title = timeToString(anime.time);
             // 没有标记的变透明
             input.style.opacity = input.value ? 1 : 0.3;
             input.onchange = () => {
-                GM_setValue(key, input.value);
+                anime.number = input.value;
+                anime.time = new Date().getTime();
+                input.title = timeToString(anime.time);
+                GM_setValue(key, anime);
                 // 没有标记的变透明
                 input.style.opacity = input.value ? 1 : 0.3;
             }
@@ -128,5 +139,21 @@
                 element.parentElement.appendChild(input);
             }
         })
+    }
+
+    function timeToString(time) {
+        if (time) {
+            let currentDay = Math.floor((new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000) / (24 * 60 * 60 * 1000));
+            let savedDay = Math.floor((time - new Date().getTimezoneOffset() * 60 * 1000) / (24 * 60 * 60 * 1000));
+            if (currentDay === savedDay) {
+                return '今天修改';
+            } else if (currentDay - savedDay === 1) {
+                return '昨天修改';
+            } else {
+                return (currentDay - savedDay) + '天前修改';
+            }
+        } else {
+            return '';
+        }
     }
 })();
